@@ -4,8 +4,8 @@ struct ProfileView: View {
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject var store: BountyStore
     
-    // Mock Data
-    let collectedToys = ["🧸", "🚗", "🦖", "🚀", "🦄", "🎨"]
+    // Emoji options for avatar
+    let avatarOptions = ["😎", "🤠", "🥳", "👻", "👽", "🤖", "🐱", "🐶", "🦊", "🦁", "🐵", "🦄"]
     
     var body: some View {
         ZStack {
@@ -30,7 +30,6 @@ struct ProfileView: View {
             
             VStack(spacing: 0) {
                 // MARK: - Avatar Header
-                // No big shadow circle, just clean avatar layout
                 VStack(spacing: 15) {
                     ZStack {
                         // Outer Ring
@@ -39,9 +38,9 @@ struct ProfileView: View {
                             .frame(width: 110, height: 110)
                             .clayEffect(color: .white, cornerRadius: 55)
                         
-                        Image(systemName: "person.crop.circle.fill")
-                            .resizable()
-                            .foregroundStyle(LinearGradient(colors: [.clayLavender, .clayPink], startPoint: .topLeading, endPoint: .bottomTrailing))
+                        // Avatar Display
+                        Text(store.userAvatar)
+                            .font(.system(size: 70))
                             .frame(width: 90, height: 90)
                     }
                     
@@ -80,28 +79,35 @@ struct ProfileView: View {
                         }
                         .padding(.horizontal)
                         
-                        // MARK: - 🧸 Toy Collection
+                        // MARK: - 🎭 Avatar Picker
                         VStack(alignment: .leading, spacing: 15) {
-                            Text("MY TOY BOX")
+                            Text("CHANGE AVATAR")
                                 .font(.system(size: 14, weight: .heavy, design: .rounded))
                                 .tracking(2)
                                 .foregroundStyle(Color.textSecondary)
                                 .padding(.leading, 30)
                             
-                            LazyVGrid(columns: [GridItem(.adaptive(minimum: 80))], spacing: 20) {
-                                ForEach(collectedToys, id: \.self) { toy in
-                                    ZStack {
-                                        Circle()
-                                            .fill(Color.white)
-                                            .frame(width: 80, height: 80)
-                                            .shadow(color: .black.opacity(0.03), radius: 5, y: 5)
-                                        
-                                        Text(toy)
-                                            .font(.system(size: 45))
+                            LazyVGrid(columns: [GridItem(.adaptive(minimum: 60))], spacing: 20) {
+                                ForEach(avatarOptions, id: \.self) { emoji in
+                                    Button(action: {
+                                        let generator = UIImpactFeedbackGenerator(style: .medium)
+                                        generator.impactOccurred()
+                                        store.userAvatar = emoji
+                                    }) {
+                                        ZStack {
+                                            Circle()
+                                                .fill(store.userAvatar == emoji ? Color.clayMint : Color.white)
+                                                .frame(width: 60, height: 60)
+                                                .shadow(color: .black.opacity(0.05), radius: 3, y: 3)
+                                            
+                                            Text(emoji)
+                                                .font(.system(size: 30))
+                                        }
                                     }
                                 }
                             }
                             .padding(.horizontal, 25)
+                            .padding(.vertical, 10)
                         }
                     }
                     .padding(.bottom, 40)
@@ -131,4 +137,5 @@ struct ProfileView: View {
 
 #Preview {
     ProfileView()
+        .environmentObject(BountyStore()) // Must inject environment object for preview
 }

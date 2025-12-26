@@ -4,6 +4,11 @@ import Combine
 class BountyStore: ObservableObject {
     @Published var tasks: [BountyTask] = []
     @Published var totalPoints: Int = 1250 // Initial points (mock)
+    @Published var userAvatar: String = "😎" // Current user avatar
+    
+    // Animation Triggers
+    @Published var lastReward: Int = 0
+    @Published var rewardTrigger: Int = 0 // Increment to trigger animation
     
     init() {
         // Load initial mock data
@@ -21,7 +26,8 @@ class BountyStore: ObservableObject {
             emoji: icon,
             points: Int(points),
             isRecurring: isRecurring,
-            color: randomColor
+            color: randomColor,
+            authorAvatar: userAvatar // Use current user avatar
         )
         
         // Add to top of list
@@ -37,9 +43,13 @@ class BountyStore: ObservableObject {
                 totalPoints += task.points
             }
             
+            // Trigger Reward Animation
+            lastReward = task.points
+            rewardTrigger += 1
+            
             // 2. Remove task (if not recurring) or mark done
             // For fun, let's just remove it with a delay to let animation play
-            withAnimation(.easeOut(duration: 0.3)) {
+            _ = withAnimation(.easeOut(duration: 0.3)) {
                 tasks.remove(at: index)
             }
         }
